@@ -1,297 +1,151 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Loundry Sadang — Cepat • Bersih • Ramah</title>
-  <meta name="description" content="Loundry Sadang — layanan laundry profesional, humanis, dan terpercaya di Jl Masjid Baiturohim." />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loundry Sadang - Kwitansi</title>
   <style>
-    :root {
-      --bg: #f9fcfa;
-      --card: #ffffff;
-      --accent: #62c27c;
-      --accent-dark: #48a863;
-      --muted: #5f6f64;
-      --shadow: rgba(98, 194, 124, 0.15);
-    }
-
-    * { box-sizing: border-box; }
-
     body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      background-color: #f5f5f5;
       margin: 0;
-      font-family: "Inter", system-ui, sans-serif;
-      background: var(--bg);
-      color: #0f1724;
-      line-height: 1.6;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: auto;
       padding: 20px;
     }
-
-    .card {
-      background: var(--card);
-      border-radius: 18px;
-      box-shadow: 0 8px 25px var(--shadow);
-      padding: 24px;
-      transition: 0.3s;
-    }
-
-    header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    .logo {
-      width: 70px;
-      height: 70px;
+    .container {
+      max-width: 380px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
       border-radius: 14px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      color: #fff;
-      font-weight: 700;
-      font-size: 22px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-
-    h1 {
-      margin: 0;
-      font-size: 28px;
-      color: var(--accent-dark);
+    h2 {
+      margin-top: 0;
+      color: #2b7cff;
     }
-
-    p.lead {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 24px;
-    }
-
-    .features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 12px 0 18px;
-    }
-
-    .f {
-      background: #e9f7ee;
-      color: var(--accent-dark);
-      font-weight: 600;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .dynamic {
-      background: linear-gradient(180deg, #fff, #f9fcfa);
-      padding: 16px;
-      border-radius: 12px;
-      border: 1px solid #e6f0e8;
-    }
-
-    .contact {
-      background: linear-gradient(180deg, #ffffff, #f2f8f4);
-      padding: 16px;
-      border-radius: 14px;
-      border: 1px solid #e6f0e8;
-      box-shadow: 0 4px 12px var(--shadow);
-    }
-
-    .address {
-      background: #f6faf7;
-      border-radius: 8px;
+    input, textarea, button {
+      width: 100%;
       padding: 10px;
-      font-size: 14px;
-      margin-bottom: 12px;
+      margin: 6px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
-
-    .btn-cta {
-      background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+    button {
+      background-color: #2b7cff;
       color: #fff;
-      box-shadow: 0 6px 15px var(--shadow);
+      font-weight: bold;
+      cursor: pointer;
     }
-
-    .btn-cta:hover { transform: scale(1.05); }
-
-    .btn-muted {
-      background: #edf6f0;
-      color: var(--accent-dark);
+    button:hover {
+      background-color: #1a5dcc;
     }
-
-    footer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 20px;
-    }
-
-    .pulse { animation: pulse 3s infinite; }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    /* Carousel */
-    .carousel {
-      overflow: hidden;
-      border-radius: 8px;
-      margin-top: 12px;
-    }
-
-    .slides {
-      display: flex;
-      transition: transform 0.4s ease;
-    }
-
-    .slide {
-      min-width: 100%;
-      font-size: 14px;
-      padding: 4px 0;
-    }
-
-    /* Responsif untuk HP */
-    @media (max-width: 880px) {
-      .grid { grid-template-columns: 1fr; }
-      header { text-align: center; }
-      .logo { margin: auto; }
-      .features { justify-content: center; }
-      .contact { order: -1; }
+    .hidden { display: none; }
+    @media print {
+      body { background: #fff; }
+      button, #loginForm { display: none; }
+      .container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+      }
     }
   </style>
 </head>
-
 <body>
-  <main class="container">
-    <div class="card">
-      <header>
-        <div class="logo">LS</div>
-        <div>
-          <h1>Loundry Sadang</h1>
-          <p class="lead">Cepat • Bersih • Ramah — layanan laundry profesional & humanis.</p>
-        </div>
-      </header>
+  <div class="container">
+    <h2>🧺 Loundry Sadang</h2>
+    <p>Jl. Masjid Baiturohim<br>Sadang - Purwasari</p>
 
-      <div class="grid">
-        <section class="hero">
-          <div class="features">
-            <div class="f">Cucian Reguler 1-2 Hari</div>
-            <div class="f">Antar-Jemput Gratis</div>
-            <div class="f">Setrika Rapi</div>
-            <div class="f">Deterjen Ramah Kulit</div>
-          </div>
-
-          <div class="dynamic">
-            <h3 style="margin-top:0;color:var(--accent-dark)">Kenapa pilih Loundry Sadang?</h3>
-            <p style="font-size:14px;color:var(--muted);">
-              Kami mengutamakan kualitas, keramahan, dan ketepatan waktu. Dari satu potong hingga cucian keluarga — semua kami tangani dengan hati dan profesionalitas.
-            </p>
-
-            <div class="carousel" id="carousel">
-              <div class="slides" id="slides">
-                <div class="slide"><strong>"Cepat dan bersih — hasilnya selalu rapi!"</strong><br><span class="small">— Ani, pelanggan setia</span></div>
-                <div class="slide"><strong>"Driver antar-jemputnya ramah dan tepat waktu."</strong><br><span class="small">— Pak Budi</span></div>
-                <div class="slide"><strong>"Wangi lembut dan pakaian dilipat rapi."</strong><br><span class="small">— Sari</span></div>
-              </div>
-            </div>
-
-            <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
-              <button class="btn btn-cta" onclick="openWA()">📲 Hubungi via WA</button>
-              <button class="btn btn-muted" onclick="copyNomor()">📋 Salin No: 0851 7219 1936</button>
-            </div>
-          </div>
-        </section>
-
-        <aside class="contact">
-          <h3 style="margin-top:0;color:var(--accent-dark)">Kontak & Alamat</h3>
-          <div class="address">
-            <strong>Alamat:</strong><br>
-            Jl Masjid Baiturohim No<br><br>
-            <strong>WA / DANA:</strong><br>
-            <b>0851 7219 1936</b><br>
-            <span class="small">a.n. Hilman Firmansyah</span>
-          </div>
-
-          <div>
-            <div class="small">Jam buka:</div>
-            <b>Senin – Sabtu, 08:00 – 18:00</b>
-          </div>
-
-          <div style="margin-top:12px">
-            <div class="small">Layanan Khusus:</div>
-            <ul style="margin:4px 0 0 18px;color:var(--muted)">
-              <li>Antar-jemput sesuai jadwal</li>
-              <li>Pickup kost & apartemen</li>
-              <li>Perawatan bahan sensitif</li>
-            </ul>
-          </div>
-
-          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
-            <a class="btn btn-cta pulse" href="#" onclick="openWA();return false">💬 Chat WA</a>
-            <a class="btn btn-muted" href="#" onclick="copyNomor();return false">📋 Salin Nomor</a>
-          </div>
-        </aside>
-      </div>
-
-      <footer>
-        © <span id="year"></span> Loundry Sadang — Dikelola oleh Hilman Firmansyah.
-      </footer>
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <input type="password" id="pin" placeholder="Masukkan PIN">
+      <button onclick="checkPin()">Login</button>
+      <p id="loginError" style="color:red; display:none;">PIN salah!</p>
     </div>
-  </main>
+
+    <!-- FORM KWITANSI -->
+    <div id="formSection" class="hidden">
+      <input type="text" id="nama" placeholder="Nama Pelanggan">
+      <input type="tel" id="nohp" placeholder="No HP (08...)">
+      <textarea id="catatan" rows="2" placeholder="Catatan"></textarea>
+      <input type="number" id="total" placeholder="Total (Rp)">
+      <button onclick="kirimData()">💾 Simpan & Share WA</button>
+      <button onclick="window.print()">🖨️ Print</button>
+      <p id="status"></p>
+    </div>
+  </div>
 
   <script>
-    // Tahun otomatis
-    document.getElementById("year").textContent = new Date().getFullYear();
+    // ====== KONFIGURASI ======
+    const PIN = "1234"; // Ubah PIN di sini
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5Xh9BGzXcIlO_gJMfNksZpBShTtQoRG5tTVvO51uFbEJTB76qU2flyrPOhJEhswaX/exec";
 
-    // WhatsApp & salin nomor
-    const waNumber = "6285172191936";
-    function openWA() {
-      const url = "https://wa.me/" + waNumber + "?text=" + encodeURIComponent("Halo Loundry Sadang, saya ingin menanyakan layanan laundry.");
-      window.open(url, "_blank");
+    // ====== LOGIN ======
+    function checkPin() {
+      const inputPin = document.getElementById('pin').value;
+      if (inputPin === PIN) {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('formSection').classList.remove('hidden');
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
     }
 
-    function copyNomor() {
-      navigator.clipboard.writeText("0851 7219 1936")
-        .then(() => alert("Nomor disalin: 0851 7219 1936"))
-        .catch(() => prompt("Salin manual:", "0851 7219 1936"));
-    }
+    // ====== KIRIM DATA ======
+    async function kirimData() {
+      const nama = document.getElementById('nama').value.trim();
+      const nohp = document.getElementById('nohp').value.trim();
+      const catatan = document.getElementById('catatan').value.trim();
+      const total = document.getElementById('total').value.trim();
+      const status = document.getElementById('status');
 
-    // Carousel otomatis
-    (function() {
-      const slides = document.getElementById("slides");
-      const total = slides.children.length;
-      let idx = 0;
-      setInterval(() => {
-        idx = (idx + 1) % total;
-        slides.style.transform = `translateX(-${idx * 100}%)`;
-      }, 3500);
-    })();
+      if (!nama || !nohp || !total) {
+        status.innerText = "⚠️ Lengkapi semua data!";
+        status.style.color = "red";
+        return;
+      }
+
+      status.innerText = "Mengirim data...";
+      status.style.color = "black";
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: new URLSearchParams({ nama, nohp, catatan, total })
+        });
+
+        const result = await res.json();
+
+        status.innerText = "✅ Data tersimpan!";
+        status.style.color = "green";
+
+        // ===== Format Pesan WhatsApp =====
+        const pesan = 
+`🧺 *Loundry Sadang*
+Jl. Masjid Baiturohim
+Sadang - Purwasari
+
+---------------------------
+🧾 No Struk : ${result.nomor_struk}
+👤 Nama : ${nama}
+📝 Catatan : ${catatan || "-"}
+💵 Total : Rp${parseInt(total).toLocaleString('id-ID')}
+---------------------------
+
+📞 0851 7219 1936
+WA / DANA a.n Hilman Firmansyah`;
+
+        // ===== Kirim ke WhatsApp =====
+        let waNumber = nohp.replace(/^0/, '62');
+        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`, '_blank');
+      } catch (err) {
+        status.innerText = "❌ Gagal mengirim data!";
+        status.style.color = "red";
+      }
+    }
   </script>
 </body>
 </html>
