@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kwitansi - Loundry Sadang</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f9fcfa;
+      --card: #ffffff;
+      --accent: #62c27c;
+      --accent-dark: #48a863;
+      --muted: #5f6f64;
+      --shadow: rgba(98, 194, 124, 0.15);
+    }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #0f1724;
+    }
+    .kwitansi {
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 8px 24px var(--shadow);
+      padding: 24px 28px;
+      width: 100%;
+      max-width: 420px;
+    }
+    h1 {
+      text-align: center;
+      color: var(--accent-dark);
+      margin: 0 0 12px;
+    }
+    .line { border-top: 1px dashed #cfe3d3; margin: 12px 0; }
+    .info { font-size: 15px; line-height: 1.7; }
+    footer {
+      text-align: center;
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="kwitansi">
+    <h1>Loundry Sadang</h1>
+    <div class="info">
+      <strong>Kwitansi Dummy</strong><br>
+      Nama: <em>Hilman Firmansyah</em><br>
+      Layanan: <em>Cuci Setrika Reguler</em><br>
+      Berat: 5 kg<br>
+      Total: Rp 35.000<br>
+      Tanggal: 05 November 2025
+    </div>
+    <div class="line"></div>
+    <footer>
+      Terima kasih telah menggunakan layanan kami 💚<br>
+      <small>Jl Masjid Baiturohim — 0851 7219 1936</small>
+    </footer>
+  </div>
+</body>
+</html>
