@@ -1,68 +1,151 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kwitansi - Loundry Sadang</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loundry Sadang - Kwitansi</title>
   <style>
-    :root {
-      --bg: #f9fcfa;
-      --card: #ffffff;
-      --accent: #62c27c;
-      --accent-dark: #48a863;
-      --muted: #5f6f64;
-      --shadow: rgba(98, 194, 124, 0.15);
-    }
     body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      background-color: #f5f5f5;
       margin: 0;
-      font-family: "Inter", system-ui, sans-serif;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      color: #0f1724;
+      padding: 20px;
     }
-    .kwitansi {
-      background: var(--card);
+    .container {
+      max-width: 380px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
       border-radius: 14px;
-      box-shadow: 0 8px 24px var(--shadow);
-      padding: 24px 28px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      color: #2b7cff;
+    }
+    input, textarea, button {
       width: 100%;
-      max-width: 420px;
+      padding: 10px;
+      margin: 6px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
-    h1 {
-      text-align: center;
-      color: var(--accent-dark);
-      margin: 0 0 12px;
+    button {
+      background-color: #2b7cff;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
     }
-    .line { border-top: 1px dashed #cfe3d3; margin: 12px 0; }
-    .info { font-size: 15px; line-height: 1.7; }
-    footer {
-      text-align: center;
-      margin-top: 16px;
-      color: var(--muted);
-      font-size: 13px;
+    button:hover {
+      background-color: #1a5dcc;
+    }
+    .hidden { display: none; }
+    @media print {
+      body { background: #fff; }
+      button, #loginForm { display: none; }
+      .container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="kwitansi">
-    <h1>Loundry Sadang</h1>
-    <div class="info">
-      <strong>Kwitansi Dummy</strong><br>
-      Nama: <em>Hilman Firmansyah</em><br>
-      Layanan: <em>Cuci Setrika Reguler</em><br>
-      Berat: 5 kg<br>
-      Total: Rp 35.000<br>
-      Tanggal: 05 November 2025
+  <div class="container">
+    <h2>🧺 Loundry Sadang</h2>
+    <p>Jl. Masjid Baiturohim<br>Sadang - Purwasari</p>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <input type="password" id="pin" placeholder="Masukkan PIN">
+      <button onclick="checkPin()">Login</button>
+      <p id="loginError" style="color:red; display:none;">PIN salah!</p>
     </div>
-    <div class="line"></div>
-    <footer>
-      Terima kasih telah menggunakan layanan kami 💚<br>
-      <small>Jl Masjid Baiturohim — 0851 7219 1936</small>
-    </footer>
+
+    <!-- FORM KWITANSI -->
+    <div id="formSection" class="hidden">
+      <input type="text" id="nama" placeholder="Nama Pelanggan">
+      <input type="tel" id="nohp" placeholder="No HP (08...)">
+      <textarea id="catatan" rows="2" placeholder="Catatan"></textarea>
+      <input type="number" id="total" placeholder="Total (Rp)">
+      <button onclick="kirimData()">💾 Simpan & Share WA</button>
+      <button onclick="window.print()">🖨️ Print</button>
+      <p id="status"></p>
+    </div>
   </div>
+
+  <script>
+    // ====== KONFIGURASI ======
+    const PIN = "1234"; // Ubah PIN di sini
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5Xh9BGzXcIlO_gJMfNksZpBShTtQoRG5tTVvO51uFbEJTB76qU2flyrPOhJEhswaX/exec";
+
+    // ====== LOGIN ======
+    function checkPin() {
+      const inputPin = document.getElementById('pin').value;
+      if (inputPin === PIN) {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('formSection').classList.remove('hidden');
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    }
+
+    // ====== KIRIM DATA ======
+    async function kirimData() {
+      const nama = document.getElementById('nama').value.trim();
+      const nohp = document.getElementById('nohp').value.trim();
+      const catatan = document.getElementById('catatan').value.trim();
+      const total = document.getElementById('total').value.trim();
+      const status = document.getElementById('status');
+
+      if (!nama || !nohp || !total) {
+        status.innerText = "⚠️ Lengkapi semua data!";
+        status.style.color = "red";
+        return;
+      }
+
+      status.innerText = "Mengirim data...";
+      status.style.color = "black";
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: new URLSearchParams({ nama, nohp, catatan, total })
+        });
+
+        const result = await res.json();
+
+        status.innerText = "✅ Data tersimpan!";
+        status.style.color = "green";
+
+        // ===== Format Pesan WhatsApp =====
+        const pesan = 
+`🧺 *Loundry Sadang*
+Jl. Masjid Baiturohim
+Sadang - Purwasari
+
+---------------------------
+🧾 No Struk : ${result.nomor_struk}
+👤 Nama : ${nama}
+📝 Catatan : ${catatan || "-"}
+💵 Total : Rp${parseInt(total).toLocaleString('id-ID')}
+---------------------------
+
+📞 0851 7219 1936
+WA / DANA a.n Hilman Firmansyah`;
+
+        // ===== Kirim ke WhatsApp =====
+        let waNumber = nohp.replace(/^0/, '62');
+        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`, '_blank');
+      } catch (err) {
+        status.innerText = "❌ Gagal mengirim data!";
+        status.style.color = "red";
+      }
+    }
+  </script>
 </body>
 </html>
