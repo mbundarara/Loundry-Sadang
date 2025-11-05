@@ -3,149 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loundry Sadang - Kwitansi</title>
+  <title>Loundry Sadang - Bersih, Cepat, Wangi!</title>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      text-align: center;
-      background-color: #f5f5f5;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      background-color: #f8f9fb;
+      color: #333;
+      text-align: center;
     }
-    .container {
-      max-width: 380px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 14px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    header {
+      background: linear-gradient(135deg, #2b7cff, #0056d6);
+      color: white;
+      padding: 30px 10px;
+      border-radius: 0 0 20px 20px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: bold;
+    }
+    header p {
+      margin-top: 6px;
+      font-size: 15px;
+    }
+    section {
+      padding: 25px 20px;
     }
     h2 {
-      margin-top: 0;
       color: #2b7cff;
+      margin-bottom: 10px;
     }
-    input, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin: 6px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-      box-sizing: border-box;
+    .layanan {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
     }
-    button {
-      background-color: #2b7cff;
-      color: #fff;
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+      color: #0056d6;
+      margin-bottom: 5px;
+    }
+    .promo {
+      background-color: #e7f1ff;
+      border-left: 5px solid #2b7cff;
+      padding: 15px;
+      margin: 25px 10px;
+      border-radius: 10px;
+    }
+    footer {
+      background: #2b7cff;
+      color: white;
+      padding: 20px 10px;
+      border-radius: 20px 20px 0 0;
+    }
+    .cta {
+      display: inline-block;
+      background: #0056d6;
+      color: white;
+      padding: 12px 25px;
+      margin-top: 15px;
+      border-radius: 25px;
       font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #1a5dcc;
-    }
-    .hidden { display: none; }
-    @media print {
-      body { background: #fff; }
-      button, #loginForm { display: none; }
-      .container {
-        box-shadow: none;
-        border: none;
-        padding: 0;
-      }
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>🧺 Loundry Sadang</h2>
-    <p>Jl. Masjid Baiturohim<br>Sadang - Purwasari</p>
+  <header>
+    <h1>🧺 Loundry Sadang</h1>
+    <p>Bersih • Cepat • Wangi — Pilihan Tepat untuk Pakaian Anda</p>
+  </header>
 
-    <!-- LOGIN FORM -->
-    <div id="loginForm">
-      <input type="password" id="pin" placeholder="Masukkan PIN">
-      <button onclick="checkPin()">Login</button>
-      <p id="loginError" style="color:red; display:none;">PIN salah!</p>
-    </div>
+  <section>
+    <h2>Tentang Kami</h2>
+    <p>
+      Kami adalah penyedia jasa laundry profesional di kawasan Sadang - Purwasari.  
+      Dengan pelayanan cepat, hasil wangi, dan harga terjangkau, kami siap menjaga kebersihan pakaian Anda setiap hari.
+    </p>
+  </section>
 
-    <!-- FORM KWITANSI -->
-    <div id="formSection" class="hidden">
-      <input type="text" id="nama" placeholder="Nama Pelanggan">
-      <input type="tel" id="nohp" placeholder="No HP (08...)">
-      <textarea id="catatan" rows="2" placeholder="Catatan"></textarea>
-      <input type="number" id="total" placeholder="Total (Rp)">
-      <button onclick="kirimData()">💾 Simpan & Share WA</button>
-      <button onclick="window.print()">🖨️ Print</button>
-      <p id="status"></p>
+  <section>
+    <h2>Layanan Kami</h2>
+    <div class="layanan">
+      <div class="card">
+        <h3>🧼 Cuci & Lipat</h3>
+        <p>Bersih, rapi, dan siap pakai dengan harga bersahabat.</p>
+      </div>
+      <div class="card">
+        <h3>👔 Setrika Saja</h3>
+        <p>Untuk Anda yang hanya ingin hasil licin maksimal.</p>
+      </div>
+      <div class="card">
+        <h3>🧥 Express Service</h3>
+        <p>Butuh cepat? Selesai dalam 1 hari!</p>
+      </div>
+      <div class="card">
+        <h3>🏠 Antar Jemput</h3>
+        <p>Kami jemput dan antar pakaian Anda, biar makin praktis.</p>
+      </div>
     </div>
+  </section>
+
+  <div class="promo">
+    <h3>🎉 Promo Spesial Bulan Ini!</h3>
+    <p>Cuci minimal 5kg gratis 1kg! Berlaku hingga akhir bulan.</p>
   </div>
 
-  <script>
-    // ====== KONFIGURASI ======
-    const PIN = "1234"; // Ubah PIN di sini
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5Xh9BGzXcIlO_gJMfNksZpBShTtQoRG5tTVvO51uFbEJTB76qU2flyrPOhJEhswaX/exec";
+  <section>
+    <h2>Hubungi Kami</h2>
+    <p>📍 Jl. Masjid Baiturohim, Sadang - Purwasari</p>
+    <p>📞 0851 7219 1936</p>
+    <p>💳 WA / DANA a.n Hilman Firmansyah</p>
+    <a href="#" class="cta">Ayo Laundry Sekarang!</a>
+  </section>
 
-    // ====== LOGIN ======
-    function checkPin() {
-      const inputPin = document.getElementById('pin').value;
-      if (inputPin === PIN) {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('formSection').classList.remove('hidden');
-      } else {
-        document.getElementById('loginError').style.display = 'block';
-      }
-    }
-
-    // ====== KIRIM DATA ======
-    async function kirimData() {
-      const nama = document.getElementById('nama').value.trim();
-      const nohp = document.getElementById('nohp').value.trim();
-      const catatan = document.getElementById('catatan').value.trim();
-      const total = document.getElementById('total').value.trim();
-      const status = document.getElementById('status');
-
-      if (!nama || !nohp || !total) {
-        status.innerText = "⚠️ Lengkapi semua data!";
-        status.style.color = "red";
-        return;
-      }
-
-      status.innerText = "Mengirim data...";
-      status.style.color = "black";
-
-      try {
-        const res = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: new URLSearchParams({ nama, nohp, catatan, total })
-        });
-
-        const result = await res.json();
-
-        status.innerText = "✅ Data tersimpan!";
-        status.style.color = "green";
-
-        // ===== Format Pesan WhatsApp =====
-        const pesan = 
-`🧺 *Loundry Sadang*
-Jl. Masjid Baiturohim
-Sadang - Purwasari
-
----------------------------
-🧾 No Struk : ${result.nomor_struk}
-👤 Nama : ${nama}
-📝 Catatan : ${catatan || "-"}
-💵 Total : Rp${parseInt(total).toLocaleString('id-ID')}
----------------------------
-
-📞 0851 7219 1936
-WA / DANA a.n Hilman Firmansyah`;
-
-        // ===== Kirim ke WhatsApp =====
-        let waNumber = nohp.replace(/^0/, '62');
-        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`, '_blank');
-      } catch (err) {
-        status.innerText = "❌ Gagal mengirim data!";
-        status.style.color = "red";
-      }
-    }
-  </script>
+  <footer>
+    <p>&copy; 2025 Loundry Sadang. Semua hak dilindungi.</p>
+  </footer>
 </body>
 </html>
