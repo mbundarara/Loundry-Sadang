@@ -5,28 +5,26 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Loundry Sadang — Cepat • Bersih • Ramah</title>
   <meta name="description" content="Loundry Sadang — layanan laundry profesional, humanis, dan terpercaya di Jl Masjid Baiturohim." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230b76d1' /></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #f8fbff;
+      --bg: #f9fcfa;
       --card: #ffffff;
-      --accent: #0b76d1;
-      --muted: #6b7280;
-      --shadow: rgba(11, 118, 209, 0.1);
+      --accent: #62c27c;
+      --accent-dark: #48a863;
+      --muted: #5f6f64;
+      --shadow: rgba(98, 194, 124, 0.15);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       font-family: "Inter", system-ui, sans-serif;
       background: var(--bg);
       color: #0f1724;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     .container {
@@ -37,9 +35,10 @@
 
     .card {
       background: var(--card);
-      border-radius: 20px;
-      box-shadow: 0 6px 25px var(--shadow);
+      border-radius: 18px;
+      box-shadow: 0 8px 25px var(--shadow);
       padding: 24px;
+      transition: 0.3s;
     }
 
     header {
@@ -53,10 +52,10 @@
     .logo {
       width: 70px;
       height: 70px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, var(--accent), #29b2f0);
+      border-radius: 14px;
       display: grid;
       place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
       color: #fff;
       font-weight: 700;
       font-size: 22px;
@@ -64,11 +63,12 @@
 
     h1 {
       margin: 0;
-      font-size: 26px;
+      font-size: 28px;
+      color: var(--accent-dark);
     }
 
     p.lead {
-      margin: 4px 0 0;
+      margin: 6px 0 0;
       color: var(--muted);
       font-size: 15px;
     }
@@ -83,12 +83,12 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin: 12px 0 16px;
+      margin: 12px 0 18px;
     }
 
     .f {
-      background: #e8f4ff;
-      color: var(--accent);
+      background: #e9f7ee;
+      color: var(--accent-dark);
       font-weight: 600;
       padding: 8px 12px;
       border-radius: 8px;
@@ -96,27 +96,22 @@
     }
 
     .dynamic {
-      background: linear-gradient(180deg, #fff, #f9fcff);
+      background: linear-gradient(180deg, #fff, #f9fcfa);
       padding: 16px;
       border-radius: 12px;
-      border: 1px solid #e6eef7;
-      margin-top: 10px;
+      border: 1px solid #e6f0e8;
     }
 
     .contact {
-      background: linear-gradient(180deg, #ffffff, #f5faff);
+      background: linear-gradient(180deg, #ffffff, #f2f8f4);
       padding: 16px;
       border-radius: 14px;
-      border: 1px solid #eef3f9;
-      box-shadow: 0 4px 10px var(--shadow);
-    }
-
-    .contact h3 {
-      margin-top: 0;
+      border: 1px solid #e6f0e8;
+      box-shadow: 0 4px 12px var(--shadow);
     }
 
     .address {
-      background: #f8fafc;
+      background: #f6faf7;
       border-radius: 8px;
       padding: 10px;
       font-size: 14px;
@@ -134,21 +129,20 @@
       cursor: pointer;
       font-weight: 700;
       transition: all 0.2s ease;
+      text-decoration: none;
     }
 
     .btn-cta {
-      background: linear-gradient(90deg, var(--accent), #18a8e0);
+      background: linear-gradient(90deg, var(--accent), var(--accent-dark));
       color: #fff;
-      box-shadow: 0 6px 15px rgba(11, 118, 209, 0.15);
+      box-shadow: 0 6px 15px var(--shadow);
     }
 
-    .btn-cta:hover {
-      transform: scale(1.03);
-    }
+    .btn-cta:hover { transform: scale(1.05); }
 
     .btn-muted {
-      background: #eef3fb;
-      color: var(--accent);
+      background: #edf6f0;
+      color: var(--accent-dark);
     }
 
     footer {
@@ -158,10 +152,7 @@
       margin-top: 20px;
     }
 
-    .pulse {
-      animation: pulse 3s infinite;
-    }
-
+    .pulse { animation: pulse 3s infinite; }
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
@@ -182,25 +173,20 @@
     .slide {
       min-width: 100%;
       font-size: 14px;
+      padding: 4px 0;
     }
 
+    /* Responsif untuk HP */
     @media (max-width: 880px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-      .contact {
-        order: -1;
-      }
-      header {
-        text-align: center;
-      }
-      .logo {
-        margin: auto;
-      }
+      .grid { grid-template-columns: 1fr; }
+      header { text-align: center; }
+      .logo { margin: auto; }
+      .features { justify-content: center; }
+      .contact { order: -1; }
     }
-
   </style>
 </head>
+
 <body>
   <main class="container">
     <div class="card">
@@ -222,9 +208,9 @@
           </div>
 
           <div class="dynamic">
-            <h3>Kenapa pilih Loundry Sadang?</h3>
+            <h3 style="margin-top:0;color:var(--accent-dark)">Kenapa pilih Loundry Sadang?</h3>
             <p style="font-size:14px;color:var(--muted);">
-              Kami mengutamakan kualitas, keramahan, dan ketepatan waktu. Dari satu potong hingga cucian keluarga — semua kami tangani dengan hati.
+              Kami mengutamakan kualitas, keramahan, dan ketepatan waktu. Dari satu potong hingga cucian keluarga — semua kami tangani dengan hati dan profesionalitas.
             </p>
 
             <div class="carousel" id="carousel">
@@ -243,7 +229,7 @@
         </section>
 
         <aside class="contact">
-          <h3>Kontak & Alamat</h3>
+          <h3 style="margin-top:0;color:var(--accent-dark)">Kontak & Alamat</h3>
           <div class="address">
             <strong>Alamat:</strong><br>
             Jl Masjid Baiturohim No<br><br>
@@ -280,11 +266,13 @@
   </main>
 
   <script>
+    // Tahun otomatis
     document.getElementById("year").textContent = new Date().getFullYear();
 
+    // WhatsApp & salin nomor
     const waNumber = "6285172191936";
     function openWA() {
-      const url = "https://wa.me/" + waNumber + "?text=" + encodeURIComponent("Halo Loundry Sadang, saya ingin menanyakan layanan.");
+      const url = "https://wa.me/" + waNumber + "?text=" + encodeURIComponent("Halo Loundry Sadang, saya ingin menanyakan layanan laundry.");
       window.open(url, "_blank");
     }
 
