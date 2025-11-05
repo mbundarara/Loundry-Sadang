@@ -1,48 +1,161 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loundry Sadang</title>
-<style>
-  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f9f9f9; color:#333; }
-  header { background:#4CAF50; color:white; padding:20px; text-align:center; }
-  main { padding:20px; }
-  h1,h2 { margin:10px 0; }
-  p { margin:6px 0; line-height:1.4; }
-  footer { text-align:center; font-size:14px; padding:10px; color:#777; }
-  .card { background:white; padding:15px; margin:15px 0; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Loundry Sadang — Cepat • Bersih • Ramah</title>
+  <meta name="description" content="Loundry Sadang — layanan laundry profesional, humanis, dan terpercaya di Jl Masjid Baiturohim." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%2333a' /></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#fbfdff;--card:#ffffff;--accent:#0b76d1;--muted:#6b7280;--glass:rgba(255,255,255,0.6)}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:0;background:linear-gradient(180deg,#f7fbff 0%,var(--bg) 100%);color:#0f1724}
+    .container{max-width:1000px;margin:36px auto;padding:20px}
+    .card{background:var(--card);border-radius:16px;box-shadow:0 6px 30px rgba(12,15,30,0.06);padding:28px}
+    header{display:flex;align-items:center;gap:18px}
+    .logo{width:78px;height:78px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#2abbf2);color:#fff;font-weight:700;font-size:20px}
+    h1{margin:0;font-size:28px}
+    p.lead{margin:6px 0 0;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:22px;margin-top:18px}
+    .hero{padding:12px}
+    .features{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+    .f{background:linear-gradient(180deg,rgba(11,118,209,0.06),transparent);padding:10px 12px;border-radius:10px;font-weight:600;color:var(--accent)}
+    .contact{background:linear-gradient(180deg,#fff,var(--glass));padding:18px;border-radius:12px}
+    .contact h3{margin:0 0 8px}
+    .badge{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:#f1f8ff;border:1px solid rgba(11,118,209,0.08)}
+    .btn{display:inline-flex;gap:10px;align-items:center;padding:12px 16px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+    .btn-cta{background:linear-gradient(90deg,var(--accent),#12b0d9);color:#fff;box-shadow:0 8px 20px rgba(11,118,209,0.12)}
+    .btn-muted{background:#eef3fb;color:var(--accent);}
+    .info-row{display:flex;gap:10px;align-items:center;margin-top:12px}
+    .small{font-size:13px;color:var(--muted)}
+    .address{background:#f8fafc;padding:10px;border-radius:8px}
+    .dynamic{margin-top:16px;padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff, #fbfdff);border:1px solid rgba(16,24,40,0.03)}
+    .testi{margin-top:12px}
+    footer{margin-top:20px;text-align:center;color:var(--muted);font-size:13px}
+    @media(max-width:880px){.grid{grid-template-columns:1fr;}.contact{order:-1}}
+    /* subtle animations */
+    .pulse{animation:pulse 3s infinite}
+    @keyframes pulse{0%{transform:translateY(0)}50%{transform:translateY(-4px)}100%{transform:translateY(0)}}
+    .carousel{position:relative;overflow:hidden}
+    .slides{display:flex;transition:transform 400ms cubic-bezier(.2,.9,.2,1)}
+    .slide{min-width:100%;padding:12px}
+  </style>
 </head>
 <body>
+  <main class="container">
+    <div class="card">
+      <header>
+        <div class="logo">LS</div>
+        <div>
+          <h1>Loundry Sadang</h1>
+          <p class="lead">Cepat • Bersih • Ramah — layanan laundry neighborhood yang profesional dan humanis.</p>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div class="badge">An. Hilman Firmansyah</div>
+          <div class="small" style="margin-top:6px">Jl Masjid Baiturohim</div>
+        </div>
+      </header><div class="grid">
+    <section class="hero">
+      <div class="features">
+        <div class="f">Cucian Reguler 1-2 hari</div>
+        <div class="f">Layanan Antar-Jemput</div>
+        <div class="f">Setrika Rapi</div>
+        <div class="f">Deterjen Ramah Kulit</div>
+      </div>
 
-<header>
-  <h1>Loundry Sadang</h1>
-  <p>Jasa laundry cepat, rapi, dan terpercaya</p>
-</header>
+      <div class="dynamic">
+        <h3 style="margin:0">Kenapa pilih Loundry Sadang?</h3>
+        <p class="small" style="margin-top:8px">Kami mengutamakan kualitas, keramahan, dan fleksibilitas. Dari satu potong sampai kiriman keluarga — kami tangani dengan profesional dan hati.</p>
 
-<main>
-  <div class="card">
-    <h2>Tentang Kami</h2>
-    <p>Loundry Sadang hadir untuk memudahkan pelanggan dalam mencuci dan merawat pakaian dengan layanan cepat dan profesional. Kami melayani wilayah Sadang - Purwasari.</p>
+        <div class="testi">
+          <div class="carousel" id="carousel" aria-live="polite">
+            <div class="slides" id="slides">
+              <div class="slide">
+                <strong>"Cepat dan bersih — hasilnya selalu rapi!"</strong>
+                <div class="small">— Ani, pelanggan setia</div>
+              </div>
+              <div class="slide">
+                <strong>"Driver antar-jemput ramah dan tepat waktu."</strong>
+                <div class="small">— Pak Budi</div>
+              </div>
+              <div class="slide">
+                <strong>"Bau harum lembut setelah dicuci."</strong>
+                <div class="small">— Sari</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-cta" onclick="openWA()">📲 Hubungi via WA</button>
+          <button class="btn btn-muted" onclick="copyNomor()">📋 Salin No: 0851 7219 1936</button>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;font-size:13px;color:var(--muted)">Layanan kami cocok untuk: mahasiswa, keluarga, kost, partner kos & usaha kecil.</div>
+    </section>
+
+    <aside class="contact">
+      <h3>Kontak & Alamat</h3>
+      <div class="address">
+        <strong>Alamat</strong>
+        <div>Jl Masjid Baiturohim No</div>
+        <div style="margin-top:10px"><strong>WA / DANA</strong></div>
+        <div style="font-weight:700;margin-top:6px">0851 7219 1936</div>
+        <div class="small" style="margin-top:6px">a.n. Hilman Firmansyah</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Jam buka</div>
+        <div style="font-weight:700">Senin - Sabtu, 08:00 - 18:00</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Layanan khusus</div>
+        <ul style="margin:6px 0 0 18px;color:var(--muted)">
+          <li>Antar-jemput sesuai jadwal</li>
+          <li>Pickup untuk kost & apartemen</li>
+          <li>Perawatan khusus untuk bahan sensitif</li>
+        </ul>
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn btn-cta pulse" href="#" onclick="openWA();return false">Chat WA</a>
+        <a class="btn btn-muted" href="#" onclick="copyNomor();return false">Salin Nomor</a>
+      </div>
+    </aside>
   </div>
 
-  <div class="card">
-    <h2>Layanan</h2>
-    <p>Cuci + Setrika, Cuci Kering, Antar Jemput, dan layanan khusus lainnya sesuai kebutuhan pelanggan.</p>
-  </div>
+  <footer>
+    © <span id="year"></span> Loundry Sadang — Dikelola oleh Hilman Firmansyah. Dibuat untuk kenyamanan pelanggan lokal.
+  </footer>
+</div>
 
-  <div class="card">
-    <h2>Kontak</h2>
-    <p>WA / DANA: 0851 7219 1936</p>
-    <p>an : HILMAN FIRMANSYAH</p>
-    <p>Alamat: Jl. Masjid Baiturohim, Sadang - Purwasari</p>
-  </div>
-</main>
+  </main>  <script>
+    // small dynamic bits
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-<footer>
-  &copy; 2025 Loundry Sadang. All rights reserved.
-</footer>
+    const waNumber = '6285172191936'; // +62 851 7219 1936
+    function openWA(){
+      const url = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent('Halo Loundry Sadang, saya ingin menanyakan layanan.');
+      window.open(url, '_blank');
+    }
+    function copyNomor(){
+      navigator.clipboard?.writeText('0851 7219 1936')
+        .then(()=>alert('Nomor disalin: 0851 7219 1936'))
+        .catch(()=>prompt('Salin manual:', '0851 7219 1936'))
+    }
 
-</body>
+    // simple carousel
+    (function(){
+      const slides = document.getElementById('slides');
+      const total = slides.children.length; let idx=0;
+      setInterval(()=>{
+        idx = (idx+1)%total;
+        slides.style.transform = 'translateX(' + (-idx*100) + '%)';
+      },3500);
+    })();
+  </script></body>
 </html>
