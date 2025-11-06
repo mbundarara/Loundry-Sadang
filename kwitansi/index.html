@@ -21,10 +21,8 @@
       padding: 20px;
       text-align: center;
     }
-    h1 {
-      font-size: 20px; margin-bottom: 10px;
-    }
-    input, select, button {
+    h1 { font-size: 20px; margin-bottom: 10px; }
+    input, button {
       width: 100%;
       padding: 10px;
       margin: 6px 0;
@@ -61,11 +59,16 @@
     <input type="number" id="total" placeholder="Total (Rp)">
     <button onclick="generateKwitansi()">Buat Kwitansi</button>
     <div id="receipt" class="receipt hidden"></div>
+    <button id="shareBtn" class="hidden" onclick="shareWA()">📤 Share via WhatsApp</button>
+    <button id="printBtn" class="hidden" onclick="window.print()">🖨️ Print Kwitansi</button>
   </div>
 
   <script>
-    const PIN = "1234"; // ubah sesuai kebutuhan
+    const PIN = "1234"; 
     const SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz5Xh9BGzXcIlO_gJMfNksZpBShTtQoRG5tTVvO51uFbEJTB76qU2flyrPOhJEhswaX/exec";
+
+    let lastReceiptText = "";
+    let lastPhone = "";
 
     function checkPin() {
       const input = document.getElementById("pinInput").value.trim();
@@ -105,9 +108,13 @@ Total: ${formatRupiah(total)}
 0851 7219 1936
 WA/Dana a.n Hilman Firmansyah`;
 
-      const receiptBox = document.getElementById("receipt");
-      receiptBox.textContent = text;
-      receiptBox.classList.remove("hidden");
+      lastReceiptText = text;
+      lastPhone = nohp;
+
+      document.getElementById("receipt").textContent = text;
+      document.getElementById("receipt").classList.remove("hidden");
+      document.getElementById("shareBtn").classList.remove("hidden");
+      document.getElementById("printBtn").classList.remove("hidden");
 
       try {
         const res = await fetch(SHEET_WEBAPP_URL, {
@@ -117,21 +124,20 @@ WA/Dana a.n Hilman Firmansyah`;
         });
         const result = await res.json();
         if (result.status === "ok") {
-          alert("✅ Data berhasil dikirim!");
+          alert("✅ Data berhasil dikirim ke Google Sheet");
         } else {
-          alert("⚠️ Gagal menyimpan: " + (result.message || "error tak diketahui"));
+          alert("⚠️ Gagal menyimpan data: " + (result.message || "Error tidak diketahui"));
         }
       } catch (err) {
-        alert("❌ Gagal mengirim data: " + err.message);
+        alert("❌ Gagal mengirim data: " + err.message + "\n\nCoba pastikan Apps Script kamu di-deploy untuk 'Anyone'.");
       }
+    }
 
-      // share ke WhatsApp
-      const targetWA = nohp.startsWith("0") ? "62" + nohp.substring(1) : nohp;
-      const waText = encodeURIComponent(text);
+    function shareWA() {
+      if (!lastPhone || !lastReceiptText) return alert("Data belum siap.");
+      const targetWA = lastPhone.startsWith("0") ? "62" + lastPhone.substring(1) : lastPhone;
+      const waText = encodeURIComponent(lastReceiptText);
       window.open(`https://wa.me/${targetWA}?text=${waText}`, "_blank");
-
-      // print thermal
-      window.print();
     }
   </script>
 
