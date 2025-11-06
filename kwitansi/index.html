@@ -3,149 +3,125 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loundry Sadang - Kwitansi</title>
+  <title>Kwitansi Laundry Sadang</title>
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
-      text-align: center;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 20px;
+      font-family: 'Arial', sans-serif;
+      background: #fafafa;
+      margin: 0; padding: 0;
+      display: flex; flex-direction: column; align-items: center;
     }
     .container {
-      max-width: 380px;
-      margin: 0 auto;
+      width: 95%;
+      max-width: 400px;
       background: #fff;
+      margin-top: 40px;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       padding: 20px;
-      border-radius: 14px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
     }
-    h2 {
-      margin-top: 0;
-      color: #2b7cff;
+    h1 {
+      font-size: 20px; margin-bottom: 10px;
     }
-    input, textarea, button {
+    input, select, button {
       width: 100%;
       padding: 10px;
       margin: 6px 0;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-      box-sizing: border-box;
+      font-size: 15px;
     }
     button {
-      background-color: #2b7cff;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
+      background: #007bff; color: white; font-weight: bold;
+      border: none; cursor: pointer;
     }
-    button:hover {
-      background-color: #1a5dcc;
-    }
+    button:hover { background: #0056b3; }
     .hidden { display: none; }
-    @media print {
-      body { background: #fff; }
-      button, #loginForm { display: none; }
-      .container {
-        box-shadow: none;
-        border: none;
-        padding: 0;
-      }
+    .receipt {
+      margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 10px;
+      font-size: 14px; line-height: 1.4; white-space: pre-line;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>🧺 Loundry Sadang</h2>
+
+  <div class="container" id="loginBox">
+    <h1>Login Kwitansi</h1>
+    <input type="password" id="pinInput" placeholder="Masukkan PIN">
+    <button onclick="checkPin()">Masuk</button>
+  </div>
+
+  <div class="container hidden" id="formBox">
+    <h1>Laundry Sadang</h1>
     <p>Jl. Masjid Baiturohim<br>Sadang - Purwasari</p>
-
-    <!-- LOGIN FORM -->
-    <div id="loginForm">
-      <input type="password" id="pin" placeholder="Masukkan PIN">
-      <button onclick="checkPin()">Login</button>
-      <p id="loginError" style="color:red; display:none;">PIN salah!</p>
-    </div>
-
-    <!-- FORM KWITANSI -->
-    <div id="formSection" class="hidden">
-      <input type="text" id="nama" placeholder="Nama Pelanggan">
-      <input type="tel" id="nohp" placeholder="No HP (08...)">
-      <textarea id="catatan" rows="2" placeholder="Catatan"></textarea>
-      <input type="number" id="total" placeholder="Total (Rp)">
-      <button onclick="kirimData()">💾 Simpan & Share WA</button>
-      <button onclick="window.print()">🖨️ Print</button>
-      <p id="status"></p>
-    </div>
+    <input type="text" id="nama" placeholder="Nama Pelanggan">
+    <input type="text" id="catatan" placeholder="Catatan">
+    <input type="number" id="total" placeholder="Total (Rp)">
+    <button onclick="generateKwitansi()">Buat Kwitansi</button>
+    <div id="receipt" class="receipt hidden"></div>
   </div>
 
   <script>
-    // ====== KONFIGURASI ======
-    const PIN = "1234"; // Ubah PIN di sini
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5Xh9BGzXcIlO_gJMfNksZpBShTtQoRG5tTVvO51uFbEJTB76qU2flyrPOhJEhswaX/exec";
+    const PIN = "1234"; // ubah sesuai kebutuhan
+    const SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz5Xh9BGzXcIlO_gJMfNksZpBShTtQoRG5tTVvO51uFbEJTB76qU2flyrPOhJEhswaX/exec";
 
-    // ====== LOGIN ======
     function checkPin() {
-      const inputPin = document.getElementById('pin').value;
-      if (inputPin === PIN) {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('formSection').classList.remove('hidden');
+      const input = document.getElementById("pinInput").value.trim();
+      if (input === PIN) {
+        document.getElementById("loginBox").classList.add("hidden");
+        document.getElementById("formBox").classList.remove("hidden");
       } else {
-        document.getElementById('loginError').style.display = 'block';
+        alert("PIN salah!");
       }
     }
 
-    // ====== KIRIM DATA ======
-    async function kirimData() {
-      const nama = document.getElementById('nama').value.trim();
-      const nohp = document.getElementById('nohp').value.trim();
-      const catatan = document.getElementById('catatan').value.trim();
-      const total = document.getElementById('total').value.trim();
-      const status = document.getElementById('status');
+    function formatRupiah(angka) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(angka);
+    }
 
-      if (!nama || !nohp || !total) {
-        status.innerText = "⚠️ Lengkapi semua data!";
-        status.style.color = "red";
-        return;
-      }
+    function generateKwitansi() {
+      const nama = document.getElementById("nama").value.trim();
+      const catatan = document.getElementById("catatan").value.trim();
+      const total = document.getElementById("total").value.trim();
 
-      status.innerText = "Mengirim data...";
-      status.style.color = "black";
+      if (!nama || !total) return alert("Nama dan total wajib diisi!");
 
-      try {
-        const res = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: new URLSearchParams({ nama, nohp, catatan, total })
-        });
-
-        const result = await res.json();
-
-        status.innerText = "✅ Data tersimpan!";
-        status.style.color = "green";
-
-        // ===== Format Pesan WhatsApp =====
-        const pesan = 
-`🧺 *Loundry Sadang*
+      const now = new Date();
+      const timestamp = now.toLocaleString('id-ID');
+      const text = 
+`Loundry Sadang
 Jl. Masjid Baiturohim
 Sadang - Purwasari
 
----------------------------
-🧾 No Struk : ${result.nomor_struk}
-👤 Nama : ${nama}
-📝 Catatan : ${catatan || "-"}
-💵 Total : Rp${parseInt(total).toLocaleString('id-ID')}
----------------------------
+No Struk: ${timestamp}
+Nama: ${nama}
+Catatan: ${catatan}
+Total: ${formatRupiah(total)}
 
-📞 0851 7219 1936
-WA / DANA a.n Hilman Firmansyah`;
+0851 7219 1936
+WA/Dana a.n Hilman Firmansyah`;
 
-        // ===== Kirim ke WhatsApp =====
-        let waNumber = nohp.replace(/^0/, '62');
-        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`, '_blank');
-      } catch (err) {
-        status.innerText = "❌ Gagal mengirim data!";
-        status.style.color = "red";
-      }
+      const receiptBox = document.getElementById("receipt");
+      receiptBox.textContent = text;
+      receiptBox.classList.remove("hidden");
+
+      // kirim ke Apps Script
+      fetch(SHEET_WEBAPP_URL, {
+        method: "POST",
+        body: JSON.stringify({ nama, catatan, total }),
+        headers: { "Content-Type": "application/json" }
+      });
+
+      // share ke WhatsApp
+      const noHP = "6285172191936"; // no WA penerima
+      const waText = encodeURIComponent(text);
+      window.open(`https://wa.me/${noHP}?text=${waText}`, "_blank");
+
+      // print thermal
+      window.print();
     }
   </script>
+
 </body>
 </html>
