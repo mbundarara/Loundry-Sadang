@@ -56,6 +56,7 @@
     <h1>Laundry Sadang</h1>
     <p>Jl. Masjid Baiturohim<br>Sadang - Purwasari</p>
     <input type="text" id="nama" placeholder="Nama Pelanggan">
+    <input type="text" id="nohp" placeholder="No HP (08...)" inputmode="numeric">
     <input type="text" id="catatan" placeholder="Catatan">
     <input type="number" id="total" placeholder="Total (Rp)">
     <button onclick="generateKwitansi()">Buat Kwitansi</button>
@@ -80,8 +81,9 @@
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(angka);
     }
 
-    function generateKwitansi() {
+    async function generateKwitansi() {
       const nama = document.getElementById("nama").value.trim();
+      const nohp = document.getElementById("nohp").value.trim();
       const catatan = document.getElementById("catatan").value.trim();
       const total = document.getElementById("total").value.trim();
 
@@ -96,6 +98,7 @@ Sadang - Purwasari
 
 No Struk: ${timestamp}
 Nama: ${nama}
+No HP: ${nohp}
 Catatan: ${catatan}
 Total: ${formatRupiah(total)}
 
@@ -106,17 +109,26 @@ WA/Dana a.n Hilman Firmansyah`;
       receiptBox.textContent = text;
       receiptBox.classList.remove("hidden");
 
-      // kirim ke Apps Script
-      fetch(SHEET_WEBAPP_URL, {
-        method: "POST",
-        body: JSON.stringify({ nama, catatan, total }),
-        headers: { "Content-Type": "application/json" }
-      });
+      try {
+        const res = await fetch(SHEET_WEBAPP_URL, {
+          method: "POST",
+          body: JSON.stringify({ nama, nohp, catatan, total }),
+          headers: { "Content-Type": "application/json" }
+        });
+        const result = await res.json();
+        if (result.status === "ok") {
+          alert("✅ Data berhasil dikirim!");
+        } else {
+          alert("⚠️ Gagal menyimpan: " + (result.message || "error tak diketahui"));
+        }
+      } catch (err) {
+        alert("❌ Gagal mengirim data: " + err.message);
+      }
 
       // share ke WhatsApp
-      const noHP = "6285172191936"; // no WA penerima
+      const targetWA = nohp.startsWith("0") ? "62" + nohp.substring(1) : nohp;
       const waText = encodeURIComponent(text);
-      window.open(`https://wa.me/${noHP}?text=${waText}`, "_blank");
+      window.open(`https://wa.me/${targetWA}?text=${waText}`, "_blank");
 
       // print thermal
       window.print();
