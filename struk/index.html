@@ -17,7 +17,7 @@ th{background:#ddd;font-weight:bold;}
 .status-belum{color:red;font-weight:bold;}
 .progress-bar{width:100%;background:#ddd;margin:5px 0;}
 .progress-fill{width:0%;height:15px;background:#4CAF50;text-align:center;color:white;font-size:12px;}
-.preview{border:1px solid #ccc;padding:5px;margin:10px 0;font-size:12px;white-space:pre;}
+/* Print 58mm */
 @media print {
   body{background:#fff;}
   .container{width:58mm;padding:2mm;margin:0;}
@@ -52,35 +52,29 @@ th{background:#ddd;font-weight:bold;}
   <textarea id="keterangan" placeholder="Keterangan"></textarea>
   <input type="number" id="total" placeholder="Total (Rp)">
   <button onclick="saveStruk()">Simpan Struk</button>
+
+  <div id="previewStruk" style="border:1px solid #000;padding:5px;margin-top:10px;white-space:pre-wrap;"></div>
+
   <div class="progress-bar"><div class="progress-fill" id="progressFill">0%</div></div>
-
-  <div id="previewDiv" class="preview" style="display:none;"></div>
-  <div id="previewButtons" style="display:none;">
-    <button onclick="sharePreview()">Share WA</button>
-    <button onclick="copyPreview()">Copy</button>
-    <button onclick="printPreview()">Print</button>
-  </div>
-
   <hr>
-  <h3>Cari Struk</h3>
-  <input type="text" id="search" placeholder="Cari nama / no WA / no struk">
-  <button onclick="searchStruk()">Cari</button>
-  <div id="searchPreview" class="preview" style="display:none;"></div>
-  <div id="searchButtons" style="display:none;">
-    <button onclick="editSearch()">Edit</button>
-    <button onclick="deleteSearch()">Hapus</button>
-    <button onclick="shareSearch()">Share Ulang</button>
-    <button onclick="copySearch()">Copy Ulang</button>
-    <button onclick="printSearch()">Print Ulang</button>
-  </div>
+  <h3>Riwayat Struk</h3>
+  <input type="text" id="search" placeholder="Cari nama / no WA / no struk" oninput="renderHistory()">
+  <table id="historyTable">
+    <thead>
+      <tr>
+        <th>No Struk</th><th>Nama</th><th>No WA</th><th>Layanan</th><th>Status</th>
+        <th>Total</th><th>Status Kirim</th><th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyFnAMoTPeMvPLr0IZZ06mCn3Ty8zqD3ulcHXbRs4IDJNcFiNikqUpm7Ylw7Qacle3b/exec";
-let role="", userName="User1";
-let lastPreview=null;
-let searchResult=null;
+let role="", userName="User1", historyData=[];
 
+// ----- LOGIN -----
 function login(){
   const pin=document.getElementById('pinInput').value;
   fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'pin',pin})})
@@ -89,10 +83,39 @@ function login(){
     role=res;
     document.getElementById('loginDiv').style.display='none';
     document.getElementById('appDiv').style.display='block';
+    renderHistory();
+    syncOffline();
   });
 }
 
-// Simpan struk dan tampil preview
+// ----- OFFLINE STORAGE -----
+function saveOffline(data){
+  let offline=JSON.parse(localStorage.getItem('offline'))||[];
+  offline.push(data);
+  localStorage.setItem('offline',JSON.stringify(offline));
+}
+
+function syncOffline(){
+  if(!navigator.onLine)return;
+  let offline=JSON.parse(localStorage.getItem('offline'))||[];
+  if(offline.length===0)return;
+  let total=offline.length;
+  offline.forEach((d,i)=>{
+    fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'save',data:JSON.stringify(d))})
+    .then(r=>r.text())
+    .then(()=>{
+      document.getElementById('progressFill').style.width=Math.round(((i+1)/total)*100)+'%';
+      document.getElementById('progressFill').innerText=Math.round(((i+1)/total)*100)+'%';
+      if(i===total-1){
+        alert('Semua data offline berhasil diunggah');
+        localStorage.removeItem('offline');
+        renderHistory();
+      }
+    });
+  });
+}
+
+// ----- SIMPAN STRUK -----
 function saveStruk(){
   const data={
     nama:document.getElementById('nama').value,
@@ -104,53 +127,56 @@ function saveStruk(){
     total:Number(document.getElementById('total').value),
     user:userName
   };
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'save',data:JSON.stringify(data)})})
-  .then(r=>r.text())
-  .then(noStruk=>{
-    lastPreview={...data,noStruk};
-    showPreview(lastPreview);
-    document.getElementById('nama').value=''; document.getElementById('alamat').value=''; document.getElementById('wa').value='';
-    document.getElementById('keterangan').value=''; document.getElementById('total').value='';
+  if(!navigator.onLine){
+    saveOffline(data);
+    alert('Offline: Data tersimpan sementara');
+    return;
+  }
+  fetch(API_URL,{
+    method:'POST',
+    body:new URLSearchParams({action:'save',data:JSON.stringify(data)})
+  }).then(r=>r.text()).then(noStruk=>{
+    showPreview(data,noStruk);
+    renderHistory();
   });
 }
 
-function showPreview(s){
-  let text=`No Struk: ${s.noStruk}\nNama: ${s.nama}\nAlamat: ${s.alamat}\nWA: ${s.wa}\nLayanan: ${s.layanan}\nStatus: ${s.status}\nKeterangan: ${s.keterangan}\nTotal: Rp ${s.total}`;
-  document.getElementById('previewDiv').innerText=text;
-  document.getElementById('previewDiv').style.display='block';
-  document.getElementById('previewButtons').style.display='block';
+// ----- SHOW PREVIEW -----
+function showPreview(data,noStruk){
+  const div=document.getElementById('previewStruk');
+  div.innerText=
+`Loundry Sadang
+Jl. Masjid Baiturohim Rt 05
+----------------------------
+No: ${noStruk}
+Tanggal: ${new Date().toLocaleString('id-ID')}
+Nama: ${data.nama}
+Alamat: ${data.alamat}
+WA: ${data.wa}
+Layanan: ${data.layanan}
+Status: ${data.status}
+Keterangan: ${data.keterangan}
+Total: Rp ${data.total}
+----------------------------
+WA/Dana: 0851 7219 1936
+a.n: Hilman Firmansyah`;
+
+  div.innerHTML += `<br>
+    <button onclick="shareWA('${noStruk}')">Share WA</button>
+    <button onclick="copyStruk('${noStruk}')">Copy</button>
+    <button onclick="printStruk('${noStruk}')">Print</button>`;
 }
 
-// Tombol preview
-function sharePreview(){window.open('https://wa.me/'+lastPreview.wa+'?text=Struk%20Laundry%20'+lastPreview.noStruk,'_blank');}
-function copyPreview(){navigator.clipboard.writeText(document.getElementById('previewDiv').innerText);}
-function printPreview(){let w=window.open('','Print'); w.document.write('<pre>'+document.getElementById('previewDiv').innerText+'</pre>'); w.print();}
+// ----- RENDER RIWAYAT -----
+function renderHistory(){/* nanti tambahkan fetch getHistory */}
 
-// Pencarian struk
-function searchStruk(){
-  const term=document.getElementById('search').value.toLowerCase();
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'getHistory'})})
-  .then(r=>r.json())
-  .then(data=>{
-    searchResult=data.find(s=>s.nama.toLowerCase().includes(term)||s.wa.includes(term)||s.noStruk.includes(term));
-    if(searchResult){showSearch(searchResult);}
-    else{document.getElementById('searchPreview').innerText='Data tidak ditemukan'; document.getElementById('searchButtons').style.display='none';}
-  });
-}
+// ----- SHARE / COPY / PRINT -----
+function shareWA(noStruk){/* nanti tambahkan fungsi WA */}
+function copyStruk(noStruk){/* nanti tambahkan fungsi copy */}
+function printStruk(noStruk){/* nanti tambahkan fungsi print */}
 
-function showSearch(s){
-  let text=`No Struk: ${s.noStruk}\nNama: ${s.nama}\nAlamat: ${s.alamat}\nWA: ${s.wa}\nLayanan: ${s.layanan}\nStatus: ${s.status}\nKeterangan: ${s.keterangan}\nTotal: Rp ${s.total}`;
-  document.getElementById('searchPreview').innerText=text;
-  document.getElementById('searchPreview').style.display='block';
-  document.getElementById('searchButtons').style.display='block';
-}
-
-// Tombol search
-function editSearch(){ let newWA=prompt('Edit No WA:',searchResult.wa); if(!newWA) return; fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'editwa',noStruk:searchResult.noStruk,wa:newWA})}).then(()=>searchStruk()); }
-function deleteSearch(){ if(confirm('Hapus struk?')) fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'delete',noStruk:searchResult.noStruk})}).then(()=>{document.getElementById('searchPreview').innerText=''; document.getElementById('searchButtons').style.display='none';});}
-function shareSearch(){window.open('https://wa.me/'+searchResult.wa+'?text=Struk%20Laundry%20'+searchResult.noStruk,'_blank');}
-function copySearch(){navigator.clipboard.writeText(document.getElementById('searchPreview').innerText);}
-function printSearch(){let w=window.open('','Print'); w.document.write('<pre>'+document.getElementById('searchPreview').innerText+'</pre>'); w.print();}
+// ----- AUTO SYNC ONLINE -----
+window.addEventListener('online',syncOffline);
 </script>
 </body>
 </html>
