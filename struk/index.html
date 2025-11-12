@@ -17,7 +17,6 @@ th{background:#ddd;font-weight:bold;}
 .status-belum{color:red;font-weight:bold;}
 .progress-bar{width:100%;background:#ddd;margin:5px 0;}
 .progress-fill{width:0%;height:15px;background:#4CAF50;text-align:center;color:white;font-size:12px;}
-/* Print 58mm */
 @media print {
   body{background:#fff;}
   .container{width:58mm;padding:2mm;margin:0;}
@@ -74,49 +73,41 @@ th{background:#ddd;font-weight:bold;}
 const API_URL = "https://script.google.com/macros/s/AKfycbyFnAMoTPeMvPLr0IZZ06mCn3Ty8zqD3ulcHXbRs4IDJNcFiNikqUpm7Ylw7Qacle3b/exec";
 let role="", userName="User1", historyData=[];
 
-// ----- LOGIN -----
-function login(){
+// LOGIN PIN
+async function login(){
   const pin=document.getElementById('pinInput').value;
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'pin',pin})})
-  .then(r=>r.text()).then(res=>{
-    if(res==='INVALID'){document.getElementById('loginMsg').innerText='PIN salah'; return;}
-    role=res;
+  try{
+    const res=await fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'pin',pin})});
+    const text=await res.text();
+    if(text==='INVALID'){document.getElementById('loginMsg').innerText='PIN salah';return;}
+    role=text;
+    userName=(role==='User')?'User1':'Admin';
     document.getElementById('loginDiv').style.display='none';
     document.getElementById('appDiv').style.display='block';
+    await syncOffline();
     renderHistory();
-    syncOffline();
-  });
+  }catch(e){console.error(e); alert('Login gagal, cek console');}
 }
 
-// ----- OFFLINE STORAGE -----
+// OFFLINE STORAGE
 function saveOffline(data){
   let offline=JSON.parse(localStorage.getItem('offline'))||[];
   offline.push(data);
   localStorage.setItem('offline',JSON.stringify(offline));
 }
-
-function syncOffline(){
+async function syncOffline(){
   if(!navigator.onLine)return;
   let offline=JSON.parse(localStorage.getItem('offline'))||[];
-  if(offline.length===0)return;
-  let total=offline.length;
-  offline.forEach((d,i)=>{
-    fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'save',data:JSON.stringify(d))})
-    .then(r=>r.text())
-    .then(()=>{
-      document.getElementById('progressFill').style.width=Math.round(((i+1)/total)*100)+'%';
-      document.getElementById('progressFill').innerText=Math.round(((i+1)/total)*100)+'%';
-      if(i===total-1){
-        alert('Semua data offline berhasil diunggah');
-        localStorage.removeItem('offline');
-        renderHistory();
-      }
-    });
-  });
+  for(let i=0;i<offline.length;i++){
+    await fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'save',data:JSON.stringify(offline[i])})});
+    document.getElementById('progressFill').style.width=Math.round(((i+1)/offline.length)*100)+'%';
+    document.getElementById('progressFill').innerText=Math.round(((i+1)/offline.length)*100)+'%';
+  }
+  if(offline.length>0){alert('Semua data offline berhasil diunggah'); localStorage.removeItem('offline'); renderHistory();}
 }
 
-// ----- SIMPAN STRUK -----
-function saveStruk(){
+// SIMPAN STRUK
+async function saveStruk(){
   const data={
     nama:document.getElementById('nama').value,
     alamat:document.getElementById('alamat').value,
@@ -127,76 +118,62 @@ function saveStruk(){
     total:Number(document.getElementById('total').value),
     user:userName
   };
-  if(!navigator.onLine){
-    saveOffline(data);
-    alert('Offline: Data tersimpan sementara');
-    return;
-  }
-  fetch(API_URL,{
-    method:'POST',
-    body:new URLSearchParams({action:'save',data:JSON.stringify(data)})
-  }).then(r=>r.text()).then(noStruk=>{
+  if(!navigator.onLine){saveOffline(data); alert('Offline: Data tersimpan sementara'); return;}
+  try{
+    const res=await fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'save',data:JSON.stringify(data)})});
+    const noStruk=await res.text();
     alert('Struk Tersimpan: '+noStruk);
     renderHistory();
-  });
+  }catch(e){console.error(e); alert('Simpan gagal, cek console');}
 }
 
-// ----- RENDER RIWAYAT -----
-function renderHistory(){
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'getHistory'})})
-  .then(r=>r.json()).then(data=>{
+// RENDER HISTORY
+async function renderHistory(){
+  try{
+    const res=await fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'getHistory'})});
+    const data=await res.json();
     historyData=data;
-    const tbody=document.querySelector('#historyTable tbody');
-    tbody.innerHTML='';
+    const tbody=document.querySelector('#historyTable tbody'); tbody.innerHTML='';
     const search=document.getElementById('search').value.toLowerCase();
     data.filter(s=>s.nama.toLowerCase().includes(search)||s.wa.includes(search)||s.noStruk.includes(search))
     .forEach(s=>{
       const tr=document.createElement('tr');
-      tr.innerHTML=`
-        <td>${s.noStruk}</td>
-        <td>${s.nama}</td>
-        <td>${s.wa}</td>
-        <td>${s.layanan}</td>
-        <td>${s.status}</td>
-        <td>${s.total}</td>
-        <td class="${s.statusWA==='Terkirim'?'status-terkirim':'status-belum'}">${s.statusWA}</td>
-        <td>
-          <button onclick="editWA('${s.noStruk}')">Edit WA</button>
-          <button onclick="shareWA('${s.noStruk}')">Share WA</button>
-          <button onclick="copyStruk('${s.noStruk}')">Copy</button>
-          <button onclick="printStruk('${s.noStruk}')">Print</button>
-          <button onclick="deleteStruk('${s.noStruk}')">Hapus</button>
-        </td>`;
-      tbody.appendChild(tr);
+      tr.innerHTML=`<td>${s.noStruk}</td><td>${s.nama}</td><td>${s.wa}</td><td>${s.layanan}</td><td>${s.status}</td>
+      <td>${s.total}</td><td class="${s.statusWA==='Terkirim'?'status-terkirim':'status-belum'}">${s.statusWA}</td>
+      <td>
+        <button onclick="editWA('${s.noStruk}')">Edit WA</button>
+        <button onclick="shareWA('${s.noStruk}')">Share WA</button>
+        <button onclick="copyStruk('${s.noStruk}')">Copy</button>
+        <button onclick="printStruk('${s.noStruk}')">Print</button>
+        <button onclick="deleteStruk('${s.noStruk}')">Hapus</button>
+      </td>`; tbody.appendChild(tr);
     });
-  });
+  }catch(e){console.error(e);}
 }
 
-// ----- EDIT WA -----
-function editWA(noStruk){
-  const newWA=prompt('Masukkan No WA baru');
-  if(!newWA)return;
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'editwa',noStruk,wa:newWA})})
-  .then(()=>{alert('WA diupdate');renderHistory();});
+// EDIT WA
+async function editWA(noStruk){
+  const newWA=prompt('Masukkan No WA baru'); if(!newWA)return;
+  await fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'editwa',noStruk,wa:newWA})});
+  alert('WA diupdate'); renderHistory();
 }
 
-// ----- SHARE WA -----
-function shareWA(noStruk){
+// SHARE WA
+async function shareWA(noStruk){
   const s=historyData.find(x=>x.noStruk===noStruk);
-  const url='https://wa.me/'+s.wa+'?text=Struk%20Laundry%20'+s.noStruk;
-  window.open(url,'_blank');
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'share',noStruk,wa:s.wa,user:userName})})
-  .then(()=>renderHistory());
+  window.open('https://wa.me/'+s.wa+'?text=Struk%20Laundry%20'+s.noStruk,'_blank');
+  await fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'share',noStruk,wa:s.wa,user:userName})});
+  renderHistory();
 }
 
-// ----- COPY STRUK -----
+// COPY STRUK
 function copyStruk(noStruk){
   const s=historyData.find(x=>x.noStruk===noStruk);
   const text=`Loundry Sadang\nNo: ${s.noStruk}\nNama: ${s.nama}\nAlamat: ${s.alamat}\nWA: ${s.wa}\nLayanan: ${s.layanan}\nStatus: ${s.status}\nKeterangan: ${s.keterangan}\nTotal: Rp ${s.total}\nGrand Total: Rp ${s.grandTotal}`;
   navigator.clipboard.writeText(text).then(()=>alert('Struk disalin ke clipboard'));
 }
 
-// ----- PRINT STRUK -----
+// PRINT STRUK
 function printStruk(noStruk){
   const s=historyData.find(x=>x.noStruk===noStruk);
   const win=window.open('','Print','width=300,height=600');
@@ -208,14 +185,14 @@ function printStruk(noStruk){
   win.print();
 }
 
-// ----- DELETE STRUK -----
-function deleteStruk(noStruk){
+// DELETE STRUK
+async function deleteStruk(noStruk){
   if(!confirm('Hapus struk?'))return;
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'delete',noStruk})})
-  .then(()=>{alert('Struk dihapus');renderHistory();});
+  await fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'delete',noStruk})});
+  alert('Struk dihapus'); renderHistory();
 }
 
-// ----- AUTO SYNC ONLINE -----
+// AUTO SYNC ONLINE
 window.addEventListener('online',syncOffline);
 </script>
 </body>
