@@ -17,7 +17,6 @@ th{background:#ddd;font-weight:bold;}
 .status-belum{color:red;font-weight:bold;}
 .progress-bar{width:100%;background:#ddd;margin:5px 0;}
 .progress-fill{width:0%;height:15px;background:#4CAF50;text-align:center;color:white;font-size:12px;}
-/* Print 58mm */
 @media print {
   body{background:#fff;}
   .container{width:58mm;padding:2mm;margin:0;}
@@ -27,125 +26,91 @@ th{background:#ddd;font-weight:bold;}
 </style>
 </head>
 <body>
-<div class="container" id="loginDiv">
-  <h2>Login PIN</h2>
-  <input type="password" id="pinInput" placeholder="Masukkan PIN">
-  <button onclick="login()">Login</button>
-  <p id="loginMsg" style="color:red"></p>
-</div>
-
-<div class="container" id="appDiv" style="display:none;">
+<div class="container" id="appDiv">
   <h2>Input Struk</h2>
   <input type="text" id="nama" placeholder="Nama">
   <input type="text" id="alamat" placeholder="Alamat">
-  <input type="text" id="wa" placeholder="No WA">
-  <select id="layanan">
-    <option value="Cuci Kiloan">Cuci Kiloan</option>
-    <option value="Cuci Satuan">Cuci Satuan</option>
-    <option value="Ekspres">Ekspres</option>
-  </select>
+  <input type="text" id="wa" placeholder="No WA (awal 0)">
+  <input type="text" id="layanan" placeholder="Jenis Layanan">
   <select id="status">
     <option value="Diterima">Diterima</option>
     <option value="Proses">Proses</option>
     <option value="Selesai">Selesai</option>
   </select>
   <textarea id="keterangan" placeholder="Keterangan"></textarea>
-  <input type="number" id="total" placeholder="Total (Rp)">
+  <input type="text" id="total" placeholder="Total (Rp)" oninput="formatRupiah(this)">
   <button onclick="saveStruk()">Simpan Struk</button>
-
-  <div id="previewStruk" style="border:1px solid #000;padding:5px;margin-top:10px;white-space:pre-wrap;"></div>
-
+  <div id="previewStruk"></div>
   <div class="progress-bar"><div class="progress-fill" id="progressFill">0%</div></div>
   <hr>
-  <h3>Riwayat Struk</h3>
-  <input type="text" id="search" placeholder="Cari nama / no WA / no struk" oninput="renderHistory()">
-  <table id="historyTable">
-    <thead>
-      <tr>
-        <th>No Struk</th><th>Nama</th><th>No WA</th><th>Layanan</th><th>Status</th>
-        <th>Total</th><th>Status Kirim</th><th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <h3>Cari Struk</h3>
+  <input type="text" id="search" placeholder="Cari nama / no WA / no struk">
+  <button onclick="searchStruk()">Cari</button>
+  <div id="searchResult"></div>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyFnAMoTPeMvPLr0IZZ06mCn3Ty8zqD3ulcHXbRs4IDJNcFiNikqUpm7Ylw7Qacle3b/exec";
-let role="", userName="User1", historyData=[];
+const API_URL = "https://script.google.com/macros/s/AKfycbxXnlgEfyoylt0tZWzJNkAka_tEv9Lx5BSt9zkXhwhYW8xMr9qrPWWP24pzJEfsjMb5/exec";
+let historyData = [];
 
-// ----- LOGIN -----
-function login(){
-  const pin=document.getElementById('pinInput').value;
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'pin',pin})})
-  .then(r=>r.text()).then(res=>{
-    if(res==='INVALID'){document.getElementById('loginMsg').innerText='PIN salah'; return;}
-    role=res;
-    document.getElementById('loginDiv').style.display='none';
-    document.getElementById('appDiv').style.display='block';
-    renderHistory();
-    syncOffline();
-  });
+// Format Rupiah
+function formatRupiah(el){
+  let num = el.value.replace(/\D/g,'');
+  el.value = 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
 }
 
-// ----- OFFLINE STORAGE -----
+// Simpan offline
 function saveOffline(data){
-  let offline=JSON.parse(localStorage.getItem('offline'))||[];
+  let offline = JSON.parse(localStorage.getItem('offline'))||[];
   offline.push(data);
   localStorage.setItem('offline',JSON.stringify(offline));
 }
 
+// Sinkronisasi offline
 function syncOffline(){
-  if(!navigator.onLine)return;
-  let offline=JSON.parse(localStorage.getItem('offline'))||[];
-  if(offline.length===0)return;
-  let total=offline.length;
+  let offline = JSON.parse(localStorage.getItem('offline'))||[];
+  if(!navigator.onLine || offline.length===0) return;
+  let total = offline.length;
   offline.forEach((d,i)=>{
     fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'save',data:JSON.stringify(d))})
-    .then(r=>r.text())
-    .then(()=>{
+    .then(()=> {
       document.getElementById('progressFill').style.width=Math.round(((i+1)/total)*100)+'%';
       document.getElementById('progressFill').innerText=Math.round(((i+1)/total)*100)+'%';
       if(i===total-1){
         alert('Semua data offline berhasil diunggah');
         localStorage.removeItem('offline');
-        renderHistory();
+        loadHistory();
       }
     });
   });
 }
 
-// ----- SIMPAN STRUK -----
+// Simpan struk
 function saveStruk(){
-  const data={
-    nama:document.getElementById('nama').value,
-    alamat:document.getElementById('alamat').value,
-    wa:document.getElementById('wa').value,
-    layanan:document.getElementById('layanan').value,
-    status:document.getElementById('status').value,
-    keterangan:document.getElementById('keterangan').value,
-    total:Number(document.getElementById('total').value),
-    user:userName
+  let data = {
+    nama: document.getElementById('nama').value,
+    alamat: document.getElementById('alamat').value,
+    wa: document.getElementById('wa').value,
+    layanan: document.getElementById('layanan').value,
+    status: document.getElementById('status').value,
+    keterangan: document.getElementById('keterangan').value,
+    total: Number(document.getElementById('total').value.replace(/\D/g,'')),
+    user: "Admin"
   };
   if(!navigator.onLine){
-    saveOffline(data);
-    alert('Offline: Data tersimpan sementara');
-    return;
+    saveOffline(data); alert('Offline: Data tersimpan sementara'); displayPreview(data,'-'); return;
   }
-  fetch(API_URL,{
-    method:'POST',
-    body:new URLSearchParams({action:'save',data:JSON.stringify(data)})
-  }).then(r=>r.text()).then(noStruk=>{
-    showPreview(data,noStruk);
-    renderHistory();
+  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'save',data:JSON.stringify(data)})})
+  .then(r=>r.text()).then(noStruk=>{
+    displayPreview(data,noStruk);
+    loadHistory();
   });
 }
 
-// ----- SHOW PREVIEW -----
-function showPreview(data,noStruk){
-  const div=document.getElementById('previewStruk');
-  div.innerText=
-`Loundry Sadang
+// Tampilkan preview
+function displayPreview(data,noStruk){
+  const html = `<pre>
+Loundry Sadang
 Jl. Masjid Baiturohim Rt 05
 ----------------------------
 No: ${noStruk}
@@ -156,27 +121,52 @@ WA: ${data.wa}
 Layanan: ${data.layanan}
 Status: ${data.status}
 Keterangan: ${data.keterangan}
-Total: Rp ${data.total}
+Total: Rp ${data.total.toLocaleString('id-ID')}
 ----------------------------
 WA/Dana: 0851 7219 1936
-a.n: Hilman Firmansyah`;
-
-  div.innerHTML += `<br>
-    <button onclick="shareWA('${noStruk}')">Share WA</button>
-    <button onclick="copyStruk('${noStruk}')">Copy</button>
-    <button onclick="printStruk('${noStruk}')">Print</button>`;
+a.n: Hilman Firmansyah
+</pre>
+<button onclick="shareWA('${noStruk}')">Share WA</button>
+<button onclick="copyStruk('${noStruk}')">Copy</button>
+<button onclick="printStruk('${noStruk}')">Print</button>`;
+  document.getElementById('previewStruk').innerHTML = html;
 }
 
-// ----- RENDER RIWAYAT -----
-function renderHistory(){/* nanti tambahkan fetch getHistory */}
+// Copy ke clipboard
+function copyStruk(noStruk){
+  const s = document.querySelector('#previewStruk pre').innerText;
+  navigator.clipboard.writeText(s).then(()=>alert('Disalin ke clipboard'));
+}
 
-// ----- SHARE / COPY / PRINT -----
-function shareWA(noStruk){/* nanti tambahkan fungsi WA */}
-function copyStruk(noStruk){/* nanti tambahkan fungsi copy */}
-function printStruk(noStruk){/* nanti tambahkan fungsi print */}
+// Print
+function printStruk(noStruk){
+  const s = document.querySelector('#previewStruk pre').innerText;
+  const w = window.open('','Print','width=300,height=600');
+  w.document.write('<pre>'+s+'</pre>'); w.print();
+}
 
-// ----- AUTO SYNC ONLINE -----
+// Share WA
+function shareWA(noStruk){
+  const s = document.querySelector('#previewStruk pre').innerText;
+  window.open('https://wa.me/085172191936?text='+encodeURIComponent(s),'_blank');
+}
+
+// Load history
+function loadHistory(){
+  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'getHistory'})})
+  .then(r=>r.json()).then(data=>historyData=data);
+}
+
+// Cari struk
+function searchStruk(){
+  const q = document.getElementById('search').value.toLowerCase();
+  const found = historyData.find(s=>s.nama.toLowerCase().includes(q)||s.wa.includes(q)||s.noStruk.includes(q));
+  if(found) displayPreview(found,found.noStruk);
+  else document.getElementById('searchResult').innerText='Struk tidak ditemukan';
+}
+
 window.addEventListener('online',syncOffline);
+loadHistory();
 </script>
 </body>
 </html>
