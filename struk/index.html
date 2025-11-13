@@ -17,11 +17,12 @@ th{background:#ddd;font-weight:bold;}
 .status-belum{color:red;font-weight:bold;}
 .progress-bar{width:100%;background:#ddd;margin:5px 0;}
 .progress-fill{width:0%;height:15px;background:#4CAF50;text-align:center;color:white;font-size:12px;}
+/* Print 58mm */
 @media print {
   body{background:#fff;}
   .container{width:58mm;padding:2mm;margin:0;}
   table, th, td{border:1px solid #000;font-size:10px;}
-  button,input,select,textarea,.progress-bar,#search{display:none;}
+  button,input,select,textarea,.progress-bar,#searchDiv{display:none;}
 }
 </style>
 </head>
@@ -30,146 +31,174 @@ th{background:#ddd;font-weight:bold;}
   <h2>Input Struk</h2>
   <input type="text" id="nama" placeholder="Nama">
   <input type="text" id="alamat" placeholder="Alamat">
-  <input type="text" id="wa" placeholder="No WA (tampil 0 jika kosong)">
-  <input type="text" id="layanan" placeholder="Jenis Layanan">
+  <input type="text" id="wa" placeholder="No WA (0 jika kosong)">
+  <select id="layanan">
+    <option value="Cuci Kiloan">Cuci Kiloan</option>
+    <option value="Cuci Satuan">Cuci Satuan</option>
+    <option value="Ekspres">Ekspres</option>
+  </select>
+  <select id="status">
+    <option value="Diterima">Diterima</option>
+    <option value="Proses">Proses</option>
+    <option value="Selesai">Selesai</option>
+  </select>
   <textarea id="keterangan" placeholder="Keterangan"></textarea>
   <input type="text" id="total" placeholder="Total (Rp)" oninput="formatRupiah(this)">
   <button onclick="saveStruk()">Simpan Struk</button>
   <div class="progress-bar"><div class="progress-fill" id="progressFill">0%</div></div>
-  
+
   <div id="previewDiv" style="margin-top:10px;"></div>
-  
+
   <hr>
-  <h3>Cari Struk Terdahulu</h3>
-  <input type="text" id="search" placeholder="Cari No / Nama / WA" oninput="renderHistory()">
-  <table id="historyTable">
-    <thead>
-      <tr>
-        <th>No Struk</th><th>Nama</th><th>No WA</th><th>Layanan</th><th>Keterangan</th><th>Total</th><th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div id="searchDiv">
+    <h3>Cari Struk</h3>
+    <input type="text" id="search" placeholder="Cari nama / no WA / no struk">
+    <button onclick="searchStruk()">Cari</button>
+    <div id="searchResult" style="margin-top:10px;"></div>
+  </div>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxXnlgEfyoylt0tZWzJNkAka_tEv9Lx5BSt9zkXhwhYW8xMr9qrPWWP24pzJEfsjMb5/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyFnAMoTPeMvPLr0IZZ06mCn3Ty8zqD3ulcHXbRs4IDJNcFiNikqUpm7Ylw7Qacle3b/exec";
 let historyData=[];
 
-function formatRupiah(el){
-  let val = el.value.replace(/[^0-9]/g,'');
-  if(val===''){el.value='';return;}
-  el.value = 'Rp '+Number(val).toLocaleString('id-ID');
+// Format Rupiah saat input
+function formatRupiah(input){
+  let val = input.value.replace(/\D/g,'');
+  input.value = val ? 'Rp '+Number(val).toLocaleString('id-ID') : '';
 }
 
+// Simpan Struk
 function saveStruk(){
-  const data={
-    nama:document.getElementById('nama').value,
-    alamat:document.getElementById('alamat').value,
-    wa:document.getElementById('wa').value || '0',
-    layanan:document.getElementById('layanan').value,
-    keterangan:document.getElementById('keterangan').value,
-    total:Number(document.getElementById('total').value.replace(/[^0-9]/g,'')),
-    user:'Admin'
+  let data={
+    nama: document.getElementById('nama').value,
+    alamat: document.getElementById('alamat').value,
+    wa: document.getElementById('wa').value || '0',
+    layanan: document.getElementById('layanan').value,
+    status: document.getElementById('status').value,
+    keterangan: document.getElementById('keterangan').value,
+    total: Number(document.getElementById('total').value.replace(/\D/g,'')),
+    user: "Admin"
   };
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'save',data:JSON.stringify(data)})})
-  .then(r=>r.text())
-  .then(noStruk=>{
-    alert('Struk Tersimpan: '+noStruk);
-    showPreview(noStruk);
-    renderHistory();
+  if(!navigator.onLine){
+    saveOffline(data);
+    alert('Offline: Data tersimpan sementara');
+    return;
+  }
+  fetch(API_URL,{
+    method:'POST',
+    body:new URLSearchParams({action:'save',data:JSON.stringify(data)})
+  }).then(r=>r.text()).then(noStruk=>{
+    data.noStruk = noStruk;
+    showPreview(data,'previewDiv');
+    resetForm();
+    fetchHistory();
   });
 }
 
-function showPreview(noStruk){
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'getHistory'})})
-  .then(r=>r.json())
-  .then(data=>{
-    const s = data.find(x=>x.noStruk===noStruk);
-    const div = document.getElementById('previewDiv');
-    div.innerHTML = `<pre>
+// Reset Form
+function resetForm(){
+  document.getElementById('nama').value='';
+  document.getElementById('alamat').value='';
+  document.getElementById('wa').value='';
+  document.getElementById('keterangan').value='';
+  document.getElementById('total').value='';
+  document.getElementById('layanan').selectedIndex=0;
+  document.getElementById('status').selectedIndex=0;
+}
+
+// Preview Struk
+function showPreview(s,divId){
+  let div=document.getElementById(divId);
+  div.innerHTML = `
+    <pre>
 Loundry Sadang
 Jl. Masjid Baiturohim Rt 05
 ----------------------------
 No: ${s.noStruk}
-Tanggal: ${s.tanggal}
+Tanggal: ${s.tanggal || '-'}
 Nama: ${s.nama}
 Alamat: ${s.alamat}
 WA: ${s.wa}
 Layanan: ${s.layanan}
+Status: ${s.status}
 Keterangan: ${s.keterangan}
-Total: Rp ${s.total}
+Total: Rp ${s.total.toLocaleString('id-ID')}
 ----------------------------
 WA/Dana: 0851 7219 1936
 a.n: Hilman Firmansyah
-</pre>
-<button onclick="shareWA('${s.noStruk}')">Share WA</button>
-<button onclick="copyStruk('${s.noStruk}')">Copy</button>
-<button onclick="printStruk('${s.noStruk}')">Print</button>`;
-  });
+    </pre>
+    <button onclick='shareWA("${s.noStruk}","${s.wa}")'>Share WA</button>
+    <button onclick='copyStruk("${s.noStruk}")'>Copy</button>
+    <button onclick='printStruk("${s.noStruk}")'>Print</button>
+  `;
 }
 
-function renderHistory(){
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'getHistory'})})
-  .then(r=>r.json())
-  .then(data=>{
-    historyData=data;
-    const tbody=document.querySelector('#historyTable tbody');
-    tbody.innerHTML='';
-    const search=document.getElementById('search').value.toLowerCase();
-    data.filter(s=>s.noStruk.toLowerCase().includes(search) || s.nama.toLowerCase().includes(search) || s.wa.includes(search))
-    .forEach(s=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML = `<td>${s.noStruk}</td><td>${s.nama}</td><td>${s.wa}</td><td>${s.layanan}</td><td>${s.keterangan}</td><td>${s.total}</td>
-      <td>
-        <button onclick="editStruk('${s.noStruk}')">Edit</button>
-        <button onclick="deleteStruk('${s.noStruk}')">Hapus</button>
-        <button onclick="shareWA('${s.noStruk}')">Share Ulang</button>
-        <button onclick="copyStruk('${s.noStruk}')">Copy Ulang</button>
-        <button onclick="printStruk('${s.noStruk}')">Print Ulang</button>
-      </td>`;
-      tbody.appendChild(tr);
+// Share WA
+function shareWA(noStruk,wa){
+  window.open('https://wa.me/'+wa+'?text=Struk%20Laundry%20'+noStruk,'_blank');
+  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'share',noStruk,wa,user:"Admin"})});
+}
+
+// Copy Struk
+function copyStruk(noStruk){
+  let s = historyData.find(x=>x.noStruk===noStruk) || {};
+  let text=`Loundry Sadang\nNo: ${noStruk}\nNama: ${s.nama||''}\nAlamat: ${s.alamat||''}\nWA: ${s.wa||''}\nLayanan: ${s.layanan||''}\nStatus: ${s.status||''}\nKeterangan: ${s.keterangan||''}\nTotal: Rp ${s.total? s.total.toLocaleString('id-ID') : ''}\nWA/Dana: 0851 7219 1936\na.n: Hilman Firmansyah`;
+  navigator.clipboard.writeText(text).then(()=>alert('Struk disalin ke clipboard'));
+}
+
+// Print Struk
+function printStruk(noStruk){
+  let s = historyData.find(x=>x.noStruk===noStruk) || {};
+  let win = window.open('','Print','width=300,height=600');
+  win.document.write('<pre>Loundry Sadang\n'+
+    'No: '+noStruk+'\nNama: '+(s.nama||'')+'\nAlamat: '+(s.alamat||'')+'\nWA: '+(s.wa||'')+
+    '\nLayanan: '+(s.layanan||'')+'\nStatus: '+(s.status||'')+'\nKeterangan: '+(s.keterangan||'')+
+    '\nTotal: Rp '+(s.total?s.total.toLocaleString('id-ID'):'')+
+    '\n---------------------------\nWA/Dana: 0851 7219 1936\na.n: Hilman Firmansyah</pre>');
+  win.print();
+}
+
+// Offline
+function saveOffline(data){
+  let offline=JSON.parse(localStorage.getItem('offline'))||[];
+  offline.push(data);
+  localStorage.setItem('offline',JSON.stringify(offline));
+}
+function syncOffline(){
+  if(!navigator.onLine)return;
+  let offline=JSON.parse(localStorage.getItem('offline'))||[];
+  offline.forEach((d,i)=>{
+    fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'save',data:JSON.stringify(d))})
+    .then(()=>{
+      if(i===offline.length-1){
+        alert('Semua data offline berhasil diunggah');
+        localStorage.removeItem('offline');
+        fetchHistory();
+      }
     });
   });
 }
 
-function editStruk(noStruk){
-  const s=historyData.find(x=>x.noStruk===noStruk);
-  const newWA = prompt('Edit No WA', s.wa);
-  if(!newWA) return;
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'editwa',noStruk,wa:newWA})})
-  .then(()=>{alert('WA diupdate'); renderHistory();});
+// Search
+function searchStruk(){
+  let val = document.getElementById('search').value.toLowerCase();
+  let resDiv = document.getElementById('searchResult');
+  resDiv.innerHTML='';
+  historyData.filter(s=>s.nama.toLowerCase().includes(val)||s.wa.includes(val)||s.noStruk.includes(val))
+    .forEach(s=>{
+      showPreview(s,'searchResult');
+    });
 }
 
-function deleteStruk(noStruk){
-  if(!confirm('Hapus struk?')) return;
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'delete',noStruk})})
-  .then(()=>{alert('Struk dihapus'); renderHistory();});
+// Fetch History
+function fetchHistory(){
+  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'getHistory'})})
+    .then(r=>r.json()).then(data=>historyData=data);
 }
 
-function shareWA(noStruk){
-  const s = historyData.find(x=>x.noStruk===noStruk);
-  const url='https://wa.me/'+s.wa+'?text=Struk%20Laundry%20'+s.noStruk;
-  window.open(url,'_blank');
-  fetch(API_URL,{method:'POST',body:new URLSearchParams({action:'share',noStruk,wa:s.wa,user:'Admin'})})
-  .then(()=>renderHistory());
-}
-
-function copyStruk(noStruk){
-  const s = historyData.find(x=>x.noStruk===noStruk);
-  const text=`Loundry Sadang\nNo: ${s.noStruk}\nNama: ${s.nama}\nAlamat: ${s.alamat}\nWA: ${s.wa}\nLayanan: ${s.layanan}\nKeterangan: ${s.keterangan}\nTotal: Rp ${s.total}\nWA/Dana: 0851 7219 1936\na.n: Hilman Firmansyah`;
-  navigator.clipboard.writeText(text).then(()=>alert('Struk disalin ke clipboard'));
-}
-
-function printStruk(noStruk){
-  const s = historyData.find(x=>x.noStruk===noStruk);
-  const win = window.open('','Print','width=300,height=600');
-  win.document.write('<pre>Loundry Sadang\n'+
-    'No: '+s.noStruk+'\nTanggal: '+s.tanggal+'\nNama: '+s.nama+'\nAlamat: '+s.alamat+'\nWA: '+s.wa+
-    '\nLayanan: '+s.layanan+'\nKeterangan: '+s.keterangan+'\nTotal: Rp '+s.total+
-    '\n---------------------------\nWA/Dana: 0851 7219 1936\na.n: Hilman Firmansyah</pre>');
-  win.print();
-}
+window.addEventListener('online',syncOffline);
+fetchHistory();
 </script>
 </body>
 </html>
